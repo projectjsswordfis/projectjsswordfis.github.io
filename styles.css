@@ -1,0 +1,135 @@
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-size: 3vmin
+}
+
+li{
+    line-height: 4vmin;
+    list-style-type:none;
+}
+
+h3{
+    font-size: 3vmin;
+    text-align: center;
+}
+
+h3, li, #UIPlayerName > label{
+    color:white;
+}
+
+:active, :hover, :focus {
+    outline: 0;
+    outline-offset: 0;
+}
+
+#mainField{
+    background-image: url("water-about.jpg");
+    position: relative;
+    background-size: cover;
+    overflow: hidden;
+    box-shadow: inset 1px 1px 20vmin black;
+}
+
+.mainField_UI{
+  
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translateZ(0) translateX(130%) translateY(-50%);
+    width: 40%;
+    padding: 5%;
+    z-index: 7;
+    background-color: rgba(190, 190, 190, 0.908);
+}
+
+
+.mainField_UI >button:not(:first-child){
+    margin-top: 7.5%;
+}
+
+.mainField_UI >button{
+    background-color: rgba(255,255,255,1);
+    padding: 1vmin;
+    font-size: 3.6vmin;
+    font-family: monospace;
+    transition: all .6s;
+    cursor: pointer;
+    border-radius: 10px;
+    border-bottom: 4px solid grey;
+    width: 100%;
+    min-height: 50px;
+}
+
+.mainField_UI > button:hover{
+    box-shadow: 0px 15px 25px -5px rgba(darken(dodgerblue, 40%));
+    transform: scale(1.23);
+}
+
+.mainField_UI >button:active {
+    box-shadow: 0px 4px 8px rgba(darken(dodgerblue, 30%));
+    transform: scale(1.09);
+    background-color: rgba(255,0,0,1);
+} 
+
+#UIPlayerName {
+    text-align: center;
+}
+
+#UIPlayerName > input , label{
+    width: 85%;
+    text-align: center;
+    display: inline-block;
+}
+
+#UIPlayerName > input {
+    margin-top: 5%;
+    padding: 1%;
+}
+
+#UIPlayerName > label {
+    font-weight: bold;
+}
+
+#UIRecords > div{
+    text-align: center;
+}
+
+
+
+#fps{
+    font-size: 3.6vmin;
+    min-width: 80px;
+    min-height: 20px;
+    top:90%;
+    background-color: yellow;
+    position: absolute;
+}
+
+.bird{
+    background-image: url("bird.png");
+    background-size: 733%;
+    z-index: 2;
+    background-position: 19.2% 12%;
+    
+}
+
+.pipe, .pipeBot{
+    background:url("tex.jpg");
+    /* background-color: rgba(0, 255, 100); */
+    background-size: 90%;
+    opacity: 0.90;
+}
+
+.score{
+    position: absolute;
+    display: inline-block;
+    font-size: 5vmin;
+    background-color: rgb(143, 212, 238);
+    color: black;
+    padding: 1vmin 4vmin;
+    font-weight: bold;
+    z-index: 1;
+}

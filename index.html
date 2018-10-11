@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="styles.css">
+    <title>Document</title>
+    <script src="http://code.jquery.com/jquery-1.8.3.js"></script>
+    <script src="http://fe.it-academy.by/JQ/jquery.js"></script>
+</head>
+
+<body>
+    <div id="mainField">
+        <div id="UI" class="mainField_UI">
+            <h3 id="playerName"></h3>
+            <button id="startButton">Начать игру</button>
+            <button id="recordButton" onclick="restoreInfo()">Таблица рекордов</button>
+            <button id="settingButton">Настройки</button>
+        </div>
+
+        <div id="UIDifficulty" class="mainField_UI tog">
+            <h3>Выберете сложность</h3>
+            <button id="ezDiffButt">Легко</button>
+            <!-- <button id="normDiffButt">Средне</button> -->
+            <button id="hardDiffButt">Тяжело</button>
+
+            <button id="backButtonDiff">Назад</button>
+        </div>
+
+        <div id="UIRestart" class="mainField_UI">
+            <button id="restartButton">Переиграть</button>
+            <button id="mainMenuButt" onclick="storeInfo()">Главное Меню</button>
+        </div>
+
+        <div id="UISetting" class="mainField_UI">
+            <h3 id="playerName"></h3>
+            <button id="settingBackButt">Назад</button>
+        </div>
+
+        <div id="UIPlayerName" class="mainField_UI">
+            <label for="name">Ваше имя:</label>
+            <input id="nameInput" type="text"  name="name" placeholder="Введите ваше имя" required />
+            <button id="acceptName">ОК</button>
+        </div>
+
+        <div id="UIRecords" class="mainField_UI">
+
+                <h3>Таблица Рекордов</h3>
+                <div id="recordsContainer">
+       <div class="user_records"> <span class="user_name"></span><span class="user_score"></span> </div> 
+                </div>
+
+            <button id="backButton">Назад</button>
+        </div>
+    </div>
+
+   
+
+    <audio id="bgMusic" loop> 
+        <source src="music.mp3" />  
+    </audio>
+
+<script src="mainField.js"></script>
+<script src="ui.js"></script>
+<script src="fish.js"></script>
+<script src="pipe.js"></script>
+<script src="score.js"></script>
+<script src="bg.js"></script>
+<script src="main.js"></script>
+<script src="http://fe.it-academy.by/JQ/jquery.js"></script>
+<script>
+
+"use strict";
+$(function (){ 
+    $('#mainMenuButt').click(function(){
+        $('.tog').toggle();  
+    });
+    $('#startButton').click(function(){
+        $('.tog').show();  
+    });
+
+});
+$(document).ready(function storeInfo() {
+    updatePassword=Math.random();
+    $.ajax( {
+            url : ajaxHandlerScript, type : 'POST', cache : false, dataType:'json',
+            data : { f : 'LOCKGET', n : stringName, p : updatePassword },
+            success : lockGetReady, error : errorHandler
+        }
+    );
+}
+);
+var ajaxHandlerScript="https://fe.it-academy.by/AjaxStringStorage2.php";
+var updatePassword;
+var stringName='LOKTEV_TEST_INFO';
+
+function storeInfo() {
+    updatePassword=Math.random();
+    $.ajax( {
+            url : ajaxHandlerScript, type : 'POST', cache : false, dataType:'json',
+            data : { f : 'LOCKGET', n : stringName, p : updatePassword },
+            success : lockGetReady, error : errorHandler
+        }
+    );
+}
+
+
+function lockGetReady(callresult) {
+    if ( callresult.error!=undefined )
+        alert(callresult.error); 
+    else {
+        // нам всё равно, что было прочитано - 
+        // всё равно перезаписываем
+        var score =  $('.score').text();
+        var nameplayer =  $('#playerName').text();
+        var info={
+            name : nameplayer,
+            age : score
+        };
+        $.ajax( {
+                url : ajaxHandlerScript, type : 'POST', cache : false, dataType:'json',
+                data : { f : 'UPDATE', n : stringName, v : JSON.stringify(info), p : updatePassword },
+                success : updateReady, error : errorHandler
+            }
+        );
+    }
+}
+
+function updateReady(callresult) {
+    if ( callresult.error!=undefined )
+        alert(callresult.error); 
+}
+
+function restoreInfo() {
+    $.ajax(
+        {
+            url : ajaxHandlerScript, type : 'POST', cache : false, dataType:'json',
+            data : { f : 'READ', n : stringName },
+            success : readReady, error : errorHandler
+        }
+    );
+}
+
+function readReady(callresult) {
+    if ( callresult.error!=undefined )
+        alert(callresult.error); 
+    else if ( callresult.result!="" ) {
+        var info=JSON.parse(callresult.result); 
+        console.log(info);
+        $('.user_name').text(info.name+" ");
+        $('.user_score').text(info.age);
+       // document.getElementById('IName').value=info.name;
+       // document.getElementById('IAge').value=info.age;
+    }
+}
+
+function errorHandler(jqXHR,statusStr,errorStr) {
+    alert(statusStr+' '+errorStr);
+}
+
+restoreInfo();
+
+</script>
+</body>
+
+</html>
