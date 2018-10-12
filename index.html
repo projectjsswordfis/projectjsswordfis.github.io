@@ -99,10 +99,8 @@ var stringName='TUTIN_SWORD_RECORDS';
 
 
 
-function lockGetReady(callresult) {
-    if ( callresult.error!=undefined )
-        alert(callresult.error); 
-    else {
+function lockGetReady() {
+   
         // нам всё равно, что было прочитано - 
         // всё равно перезаписываем
         var score =  $('.score').text();
@@ -118,8 +116,11 @@ function lockGetReady(callresult) {
             }
         );
     }
-}
-function storeInfo() {
+
+function storeInfo(callresult) {
+    if ( callresult.error!=undefined )
+        alert(callresult.error); 
+    else {
     updatePassword=Math.random();
     $.ajax( {
             url : ajaxHandlerScript, type : 'POST', cache : false, dataType:'json',
@@ -127,6 +128,7 @@ function storeInfo() {
             success : updateReady, error : errorHandler
         }
     );
+    }
 }
 function updateReady(callresult) {
     if ( callresult.error!=undefined )
