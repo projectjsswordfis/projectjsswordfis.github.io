@@ -32,7 +32,7 @@
 
         <div id="UIRestart" class="mainField_UI">
             <button id="restartButton">Переиграть</button>
-            <button id="mainMenuButt" onclick="lockGetReady()">Главное Меню</button>
+            <button id="mainMenuButt" onclick="storeInfo()">Главное Меню</button>
         </div>
 
         <div id="UISetting" class="mainField_UI">
@@ -97,10 +97,21 @@ var ajaxHandlerScript="https://fe.it-academy.by/AjaxStringStorage2.php";
 var updatePassword;
 var stringName='TUTIN_SWORD_RECORDS';
 
-
-
-function lockGetReady() {
+function storeInfo() {
     updatePassword=Math.random();
+    $.ajax( {
+            url : ajaxHandlerScript, type : 'POST', cache : false, dataType:'json',
+            data : { f : 'LOCKGET', n : stringName, p : updatePassword },
+            success : lockGetReady, error : errorHandler
+        }
+    );
+}
+
+
+function lockGetReady(callresult) {
+    if ( callresult.error!=undefined )
+        alert(callresult.error); 
+    else {
         // нам всё равно, что было прочитано - 
         // всё равно перезаписываем
         var score =  $('.score').text();
@@ -112,24 +123,12 @@ function lockGetReady() {
         $.ajax( {
                 url : ajaxHandlerScript, type : 'POST', cache : false, dataType:'json',
                 data : { f : 'UPDATE', n : stringName, v : JSON.stringify(info), p : updatePassword },
-                success : storeInfo, error : errorHandler
+                success : updateReady, error : errorHandler
             }
         );
     }
-
-function storeInfo(callresult) {
-    if ( callresult.error!=undefined )
-        alert(callresult.error); 
-    else {
- 
-    $.ajax( {
-            url : ajaxHandlerScript, type : 'POST', cache : false, dataType:'json',
-            data : { f : 'LOCKGET', n : stringName, p : updatePassword },
-            success : updateReady, error : errorHandler
-        }
-    );
-    }
 }
+
 function updateReady(callresult) {
     if ( callresult.error!=undefined )
         alert(callresult.error); 
