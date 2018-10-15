@@ -83,16 +83,7 @@ $(function (){
     });
 
 });
-$(document).ready(function storeInfo() {
-    updatePassword=Math.random();
-    $.ajax( {
-            url : ajaxHandlerScript, type : 'POST', cache : false, dataType:'json',
-            data : { f : 'LOCKGET', n : stringName, p : updatePassword },
-            success : lockGetReady, error : errorHandler
-        }
-    );
-}
-);
+
 var ajaxHandlerScript="https://fe.it-academy.by/AjaxStringStorage2.php";
 var updatePassword;
 var stringName='TUTIN_SWORD_RECORDS';
