@@ -17,7 +17,7 @@
         <div id="UI" class="mainField_UI">
             <h3 id="playerName"></h3>
             <button id="startButton">Начать игру</button>
-            <button id="recordButton" onclick="restoreInfo()">Таблица рекордов</button>
+            <button id="recordButton" onclick="showMessages()">Таблица рекордов</button>
             <button id="settingButton">Настройки</button>
         </div>
 
@@ -32,7 +32,7 @@
 
         <div id="UIRestart" class="mainField_UI">
             <button id="restartButton">Переиграть</button>
-            <button id="mainMenuButt" onclick="storeInfo()">Главное Меню</button>
+            <button id="mainMenuButt" onclick="sendMessage()">Главное Меню</button>
         </div>
 
         <div id="UISetting" class="mainField_UI">
@@ -87,72 +87,122 @@ $(function (){
 var ajaxHandlerScript="https://fe.it-academy.by/AjaxStringStorage2.php";
 var updatePassword;
 var stringName='TUTIN_SWORD_RECORDS';
+//var stringName='LOKTEV_CHAT_MESSAGES';
+var messages; // элемент массива - {name:'Иванов',mess:'Привет'};
+// показывает все сообщения из messages на страницу
+function showMessages() {
+    var str='';
+    for ( var m=0; m<messages.length; m++ ) {
+        var message=messages[m];
+        str+="<b>"+escapeHTML(message.name)+":</b> "
+            +escapeHTML(message.mess)+"<br />";
+    }
+    document.getElementById('recordsContainer').innerHTML=str;
+}
 
-function storeInfo() {
+function escapeHTML(text) {
+    if ( !text )
+        return text;
+    text=text.toString()
+        .split("&").join("&amp;")
+        .split("<").join("&lt;")
+        .split(">").join("&gt;")
+        .split('"').join("&quot;")
+        .split("'").join("&#039;");
+    return text;
+}
+
+// получает сообщения с сервера и потом показывает
+function refreshMessages() {
+    $.ajax( {
+            url : ajaxHandlerScript,
+            type : 'POST', dataType:'json',
+            data : { f : 'READ', n : stringName },
+            cache : false,
+            success : readReady,
+            error : errorHandler
+        }
+    );
+}
+
+function readReady(callresult) { // сообщения получены - показывает
+    if ( callresult.error!=undefined )
+        alert(callresult.error);
+    else {
+        messages=[];
+        if ( callresult.result!="" ) { // либо строка пустая - сообщений нет
+            // либо в строке - JSON-представление массива сообщений
+            messages=JSON.parse(callresult.result);
+            // вдруг кто-то сохранил мусор вместо LOKTEV_CHAT_MESSAGES?
+            if ( !Array.isArray(messages) )
+                messages=[];
+        }
+        showMessages();
+    }
+}
+
+// получает сообщения с сервера, добавляет новое,
+// показывает и сохраняет на сервере
+function sendMessage() {
     updatePassword=Math.random();
     $.ajax( {
-            url : ajaxHandlerScript, type : 'POST', cache : false, dataType:'json',
-            data : { f : 'LOCKGET', n : stringName, p : updatePassword },
-            success : lockGetReady, error : errorHandler
+            url : ajaxHandlerScript,
+            type : 'POST', dataType:'json',
+            data : { f : 'LOCKGET', n : stringName,
+                p : updatePassword },
+            cache : false,
+            success : lockGetReady,
+            error : errorHandler
         }
     );
 }
 
 
+// сообщения получены, добавляет, показывает, сохраняет
 function lockGetReady(callresult) {
     if ( callresult.error!=undefined )
-        alert(callresult.error); 
+        alert(callresult.error);
     else {
-        // нам всё равно, что было прочитано - 
-        // всё равно перезаписываем
-        var score =  $('.score').text();
-        var nameplayer =  $('#playerName').text();
-        var info={
-            name : nameplayer,
-            age : score
-        };
+        messages=[];
+        if ( callresult.result!="" ) { // либо строка пустая - сообщений нет
+            // либо в строке - JSON-представление массива сообщений
+            messages=JSON.parse(callresult.result);
+            // вдруг кто-то сохранил мусор вместо LOKTEV_CHAT_MESSAGES?
+            if ( !Array.isArray(messages) )
+                messages=[];
+        }
+
+        var senderName=$('#playerName').text();
+        var message=$('.score').text();
+        messages.push( { name:senderName, mess:message } );
+        if ( messages.length>10 )
+            messages=messages.slice(messages.length-10);
+
+        showMessages();
+
         $.ajax( {
-                url : ajaxHandlerScript, type : 'POST', cache : false, dataType:'json',
-                data : { f : 'UPDATE', n : stringName, v : JSON.stringify(info), p : updatePassword },
-                success : updateReady, error : errorHandler
+                url : ajaxHandlerScript,
+                type : 'POST', dataType:'json',
+                data : { f : 'UPDATE', n : stringName,
+                    v : JSON.stringify(messages), p : updatePassword },
+                cache : false,
+                success : updateReady,
+                error : errorHandler
             }
         );
     }
 }
-
+// сообщения вместе с новым сохранены на сервере
 function updateReady(callresult) {
     if ( callresult.error!=undefined )
-        alert(callresult.error); 
-}
-
-function restoreInfo() {
-    $.ajax(
-        {
-            url : ajaxHandlerScript, type : 'POST', cache : false, dataType:'json',
-            data : { f : 'READ', n : stringName },
-            success : readReady, error : errorHandler
-        }
-    );
-}
-
-function readReady(callresult) {
-    if ( callresult.error!=undefined )
-        alert(callresult.error); 
-    else if ( callresult.result!="" ) {
-        var info=JSON.parse(callresult.result); 
-        console.log(info);
-        $('.user_name').text(info.name+" ");
-        $('.user_score').text(info.age);
-       // document.getElementById('IName').value=info.name;
-       // document.getElementById('IAge').value=info.age;
-    }
+        alert(callresult.error);
 }
 
 function errorHandler(jqXHR,statusStr,errorStr) {
     alert(statusStr+' '+errorStr);
 }
 
-restoreInfo();
+refreshMessages();
 
 </script>
 </body>
